@@ -1,0 +1,71 @@
+from pathlib import Path
+from datetime import date
+import json, html
+
+ROOT=Path(__file__).resolve().parents[1]
+SITE='https://qrcodedigital.com'
+DATA=ROOT/'.github/scheduled/articles.json'
+BLOG=ROOT/'blog'
+
+def esc(s): return html.escape(s, quote=True)
+
+def article_page(a):
+    url=f"{SITE}/blog/{a['slug']}/"
+    faq_json=[]
+    faq_html=[]
+    for q,ans in a.get('faqs',[]):
+        faq_json.append({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':ans}})
+        faq_html.append(f'<details><summary>{esc(q)}</summary><p>{esc(ans)}</p></details>')
+    sections=''.join(f'<h2>{esc(h)}</h2><p>{esc(p)}</p>' for h,p in a.get('sections',[]))
+    schema={'@context':'https://schema.org','@graph':[
+      {'@type':'BlogPosting','headline':a['title'],'description':a['description'],'datePublished':a['publish_date'],'dateModified':a['publish_date'],'inLanguage':'fr-CI','mainEntityOfPage':url,'author':{'@type':'Organization','name':'Digital ADN','url':SITE+'/'},'publisher':{'@type':'Organization','name':'Digital ADN','url':SITE+'/'},'about':[a['category'],'digitalisation entreprise','Côte d’Ivoire']},
+      {'@type':'BreadcrumbList','itemListElement':[{'@type':'ListItem','position':1,'name':'Accueil','item':SITE+'/'},{'@type':'ListItem','position':2,'name':'Blog','item':SITE+'/blog/'},{'@type':'ListItem','position':3,'name':a['title'],'item':url}]}
+    ]}
+    if faq_json: schema['@graph'].append({'@type':'FAQPage','mainEntity':faq_json})
+    return f'''<!doctype html><html lang="fr-CI"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(a['title'])} | Digital ADN</title><meta name="description" content="{esc(a['description'])}"><link rel="canonical" href="{url}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta property="og:type" content="article"><meta property="og:locale" content="fr_CI"><meta property="og:title" content="{esc(a['title'])}"><meta property="og:description" content="{esc(a['excerpt'])}"><meta property="og:url" content="{url}"><meta property="article:published_time" content="{a['publish_date']}T00:00:00+00:00"><meta property="article:author" content="Digital ADN"><link rel="alternate" type="application/rss+xml" title="Blog Digital ADN" href="{SITE}/blog/feed.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/blog/styles.css"><script type="application/ld+json">{json.dumps(schema,ensure_ascii=False,separators=(',',':'))}</script></head><body><nav class="nav"><div class="container navin"><a class="brand" href="/">DIGITAL <span>ADN</span></a><div class="links"><a href="/">Solutions</a><a href="/blog/">Blog</a><a href="/#offres">Tarifs</a></div></div></nav><main class="article"><div class="container"><div class="article-header"><div class="breadcrumbs"><a href="/">Accueil</a> › <a href="/blog/">Blog</a> › {esc(a['category'])}</div><div class="meta">{a['publish_date']} · {esc(a['category'])} · {esc(a['reading_time'])}</div><h1>{esc(a['title'])}</h1><p class="lead">{esc(a.get('lead',a['excerpt']))}</p></div><div class="content"><div class="answer"><strong>À retenir</strong>{esc(a['excerpt'])}</div>{sections}<div class="faq"><h2>Questions fréquentes</h2>{''.join(faq_html)}</div><div class="cta"><h2>Vous voulez appliquer cela à votre activité ?</h2><p>Digital ADN accompagne les entreprises en Côte d’Ivoire avec des catalogues et menus QR, des outils de commande et de gestion, des sites web, des agents IA WhatsApp et des applications sur mesure.</p><a class="btn" href="https://wa.me/2250779019255?text=Bonjour%20Digital%20ADN%2C%20je%20souhaite%20digitaliser%20mon%20activit%C3%A9">Parler de mon besoin</a></div><div class="related"><strong>Continuer</strong><a href="/blog/">Voir tous les guides Digital ADN →</a></div></div></div></main><footer class="footer"><div class="container footerin"><span>© 2026 Digital ADN — Abidjan, Côte d’Ivoire.</span><a href="/">Solutions digitales</a></div></footer></body></html>'''
+
+def published_articles(data,today):
+    return [a for a in data if date.fromisoformat(a['publish_date'])<=today]
+
+def write_blog_index(pub):
+    cards=''.join(f'<a class="card" href="/blog/{a["slug"]}/"><div class="meta">{a["publish_date"]} · {esc(a["category"])} · {esc(a["reading_time"])}</div><h2>{esc(a["title"])}</h2><p>{esc(a["excerpt"])}</p></a>' for a in reversed(pub))
+    items=[{'@type':'ListItem','position':i+1,'url':f'{SITE}/blog/{a["slug"]}/','name':a['title']} for i,a in enumerate(reversed(pub))]
+    schema={'@context':'https://schema.org','@graph':[{'@type':'Blog','name':'Blog Digital ADN','url':SITE+'/blog/','inLanguage':'fr-CI','description':'Guides pratiques sur la digitalisation des entreprises en Côte d’Ivoire.','publisher':{'@type':'Organization','name':'Digital ADN','url':SITE+'/' }},{'@type':'ItemList','itemListElement':items}]}
+    content=f'''<!doctype html><html lang="fr-CI"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog Digital ADN | Catalogues QR, WhatsApp, sites web & digitalisation en Côte d’Ivoire</title><meta name="description" content="Guides pratiques pour entreprises en Côte d’Ivoire : catalogue digital, menu QR, commandes WhatsApp, POS, CRM, site web, agent IA WhatsApp et applications de gestion."><link rel="canonical" href="{SITE}/blog/"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta property="og:type" content="website"><meta property="og:locale" content="fr_CI"><meta property="og:title" content="Blog Digital ADN — Digitalisation des entreprises en Côte d’Ivoire"><meta property="og:url" content="{SITE}/blog/"><link rel="alternate" type="application/rss+xml" title="Blog Digital ADN" href="{SITE}/blog/feed.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/blog/styles.css"><script type="application/ld+json">{json.dumps(schema,ensure_ascii=False,separators=(',',':'))}</script></head><body><nav class="nav"><div class="container navin"><a class="brand" href="/">DIGITAL <span>ADN</span></a><div class="links"><a href="/">Solutions</a><a href="/blog/">Blog</a><a href="/#offres">Tarifs</a></div></div></nav><header class="hero"><div class="container"><div class="kicker">Guides pour entreprises ivoiriennes</div><h1>Des réponses concrètes pour mieux digitaliser votre activité.</h1><p>Catalogues et menus QR, commandes WhatsApp, POS, stocks, CRM, sites web, agents IA WhatsApp et applications de gestion : des réponses aux questions des PME, restaurants, bars, boutiques, hôtels et prestataires en Côte d’Ivoire.</p></div></header><main class="container"><section class="grid">{cards}</section></main><footer class="footer"><div class="container footerin"><span>© 2026 Digital ADN — Abidjan, Côte d’Ivoire.</span><a href="/">Découvrir nos solutions</a></div></footer></body></html>'''
+    (BLOG/'index.html').write_text(content,encoding='utf-8')
+
+def write_sitemap(pub,today):
+    urls=[('/',today.isoformat(),'1.0'),('/blog/',today.isoformat(),'0.9')]+[(f'/blog/{a["slug"]}/',a['publish_date'],'0.8') for a in pub]
+    body=''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{d}</lastmod><changefreq>{"weekly" if p=="/" else "monthly"}</changefreq><priority>{pr}</priority></url>' for p,d,pr in urls)
+    (ROOT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+body+'</urlset>',encoding='utf-8')
+
+def write_feed(pub):
+    items=''.join(f'<item><title>{esc(a["title"])}</title><link>{SITE}/blog/{a["slug"]}/</link><guid>{SITE}/blog/{a["slug"]}/</guid><pubDate>{a["publish_date"]} 08:00:00 +0000</pubDate><description>{esc(a["excerpt"])}</description></item>' for a in reversed(pub))
+    (BLOG/'feed.xml').write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Blog Digital ADN</title><link>{SITE}/blog/</link><description>Digitalisation des entreprises en Côte d’Ivoire</description><language>fr-CI</language>{items}</channel></rss>',encoding='utf-8')
+
+def patch_home():
+    p=ROOT/'index.html'; s=p.read_text(encoding='utf-8')
+    s=s.replace('<html lang="fr">','<html lang="fr-CI">',1)
+    s=s.replace('<meta name="description" content="Digital ADN aide les entreprises à vendre plus vite, mieux gérer leurs commandes et renforcer leur relation client grâce à des solutions digitales prêtes à l\'emploi."/>','<meta name="description" content="Digital ADN crée en Côte d’Ivoire des catalogues et menus QR, solutions de commande POS, gestion de stock et CRM, sites web, agents IA WhatsApp et applications sur mesure."/>',1)
+    s=s.replace('<title>QR Digital ADN — Digitalisez vos ventes et votre gestion</title>','<title>Catalogue digital, menu QR & solutions de gestion en Côte d’Ivoire | Digital ADN</title>\n<link rel="canonical" href="https://qrcodedigital.com/"/>\n<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"/>\n<meta name="geo.region" content="CI"/><meta name="geo.placename" content="Abidjan"/>\n<meta property="og:type" content="website"/><meta property="og:locale" content="fr_CI"/><meta property="og:title" content="Catalogue digital, menu QR & solutions de gestion en Côte d’Ivoire | Digital ADN"/><meta property="og:description" content="Catalogues QR, commandes POS, stocks, CRM, sites web, agent IA WhatsApp et applications sur mesure pour entreprises ivoiriennes."/><meta property="og:url" content="https://qrcodedigital.com/"/>\n<link rel="alternate" type="application/rss+xml" title="Blog Digital ADN" href="https://qrcodedigital.com/blog/feed.xml"/>\n<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://qrcodedigital.com/#organization","name":"Digital ADN","url":"https://qrcodedigital.com/","telephone":"+2250779019255","areaServed":{"@type":"Country","name":"Côte d’Ivoire"},"address":{"@type":"PostalAddress","addressLocality":"Abidjan","addressCountry":"CI"}},{"@type":"WebSite","@id":"https://qrcodedigital.com/#website","url":"https://qrcodedigital.com/","name":"Digital ADN — Solutions digitales Côte d’Ivoire","publisher":{"@id":"https://qrcodedigital.com/#organization"},"inLanguage":"fr-CI"},{"@type":"Service","name":"Catalogue digital et menu QR pour entreprises en Côte d’Ivoire","provider":{"@id":"https://qrcodedigital.com/#organization"},"areaServed":{"@type":"Country","name":"Côte d’Ivoire"},"serviceType":["Catalogue digital","Menu QR","Prise de commande POS","Gestion de stock","Synchronisation CRM"]},{"@type":"OfferCatalog","name":"Packs catalogue digital Digital ADN","itemListElement":[{"@type":"Offer","name":"Pack Starter","price":"15000","priceCurrency":"XOF","description":"Installation 15 000 F CFA puis abonnement 4 900 F CFA/mois. Catalogue ou menu QR, panier WhatsApp, 3 cartes QR physiques."},{"@type":"Offer","name":"Pack Pro","price":"30000","priceCurrency":"XOF","description":"Installation 30 000 F CFA puis abonnement 14 900 F CFA/mois. Prise de commande POS, gestion structurée, 5 cartes QR physiques."},{"@type":"Offer","name":"Pack Business","price":"60000","priceCurrency":"XOF","description":"Installation 60 000 F CFA puis abonnement 29 900 F CFA/mois. Gestion des stocks, synchronisation CRM temps réel, 10 cartes QR physiques."}]}]}</script>',1)
+    s=s.replace('<a href="#fonctionnalites">Fonctions</a>','<a href="#fonctionnalites">Fonctions</a><a href="/blog/">Blog</a>',1)
+    s=s.replace('<h1>Digitalisez votre activité pour <span class="gradient-text">vendre plus vite et travailler plus efficacement.</span></h1><p>En un scan, vos clients accèdent à vos offres, commandent plus facilement et vous contactent plus vite.</p>','<h1>Catalogue digital, QR code et outils de gestion pour <span class="gradient-text">vendre plus vite en Côte d’Ivoire.</span></h1><p>Digital ADN aide restaurants, bars, maquis, boutiques, hôtels et PME à présenter leurs offres, recevoir des commandes et structurer leur gestion depuis le smartphone.</p>',1)
+    s=s.replace('src="https://monadia-bucket.sfo3.cdn.digitaloceanspaces.com/illustreation%20hero.png"/>','src="https://monadia-bucket.sfo3.cdn.digitaloceanspaces.com/illustreation%20hero.png" fetchpriority="high"/>',1)
+    if 'id="blog-guides"' not in s:
+        block='<section id="blog-guides"><div class="container"><div class="section-head"><div><span class="eyebrow">Conseils & ressources</span><h2 style="margin-top:18px">Les questions que se posent les entreprises avant de se digitaliser.</h2></div><p>Guides pratiques sur les catalogues QR, commandes WhatsApp, POS, CRM, sites web, agents IA WhatsApp et applications sur mesure en Côte d’Ivoire.</p></div><div class="features"><a class="feature" href="/blog/prix-catalogue-digital-menu-qr-cote-divoire/"><div class="icon">?</div><h3>Combien coûte un catalogue digital ?</h3><p>Tarifs, différences entre les packs et critères pour choisir.</p></a><a class="feature" href="/blog/"><div class="icon">↗</div><h3>Voir tous nos guides</h3><p>Des réponses ciblées pour restaurants, commerces, hôtels, services et PME.</p></a></div></div></section>'
+        s=s.replace('<section class="cta" id="contact">',block+'\n<section class="cta" id="contact">',1)
+    s=s.replace('<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire.</div>','<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire. · <a href="/blog/">Blog</a> · <a href="/sitemap.xml">Sitemap</a></div>',1)
+    p.write_text(s,encoding='utf-8')
+
+def main():
+    today=date.today()
+    data=json.loads(DATA.read_text(encoding='utf-8'))
+    pub=published_articles(data,today)
+    for a in pub:
+        dest=BLOG/a['slug']/'index.html'
+        if not dest.exists() and not a.get('existing'):
+            dest.parent.mkdir(parents=True,exist_ok=True)
+            dest.write_text(article_page(a),encoding='utf-8')
+    write_blog_index(pub); write_sitemap(pub,today); write_feed(pub); patch_home()
+
+if __name__=='__main__': main()
