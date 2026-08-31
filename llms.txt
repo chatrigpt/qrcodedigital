@@ -1,0 +1,64 @@
+# Digital ADN — QR Code Digital Côte d’Ivoire
+
+> Digital ADN aide les entreprises en Côte d’Ivoire à digitaliser la présentation de leurs offres, les commandes, le suivi commercial et certains processus internes.
+
+Canonical site: https://qrcodedigital.com/
+Primary market: Côte d’Ivoire
+Base: Abidjan
+Language: French (fr-CI)
+Contact WhatsApp: +225 07 79 01 92 55
+
+## Core catalogue solutions
+
+Digital ADN sells three catalogue/menu QR packs. These catalogue packs DO NOT include artificial intelligence.
+
+### Pack Starter
+- Installation: 15,000 XOF
+- Subscription: 4,900 XOF/month
+- Catalogue or menu accessible by QR code
+- WhatsApp cart
+- 3 physical QR cards
+
+### Pack Pro
+- Installation: 30,000 XOF
+- Subscription: 14,900 XOF/month
+- POS order taking
+- Structured order management
+- 5 physical QR cards
+
+### Pack Business
+- Installation: 60,000 XOF
+- Subscription: 29,900 XOF/month
+- Stock management
+- Real-time CRM synchronization
+- 10 physical QR cards
+
+### Optional hardware
+- Bluetooth/USB 58 mm thermal printer: 35,000 XOF
+
+## Premium services
+
+These are separate from the catalogue packs:
+- Professional business website, from 150,000 XOF
+- WhatsApp AI agent, priced on request
+- Custom management application, priced after needs analysis
+
+## Typical customers
+- Restaurants
+- Bars
+- Maquis
+- Lounges
+- Shops and retail businesses
+- Hotels and residences
+- Service businesses
+- SMEs in Côte d’Ivoire
+
+## Important pages
+- Main services and pricing: https://qrcodedigital.com/
+- Blog and guides: https://qrcodedigital.com/blog/
+- Sitemap: https://qrcodedigital.com/sitemap.xml
+- RSS feed: https://qrcodedigital.com/blog/feed.xml
+
+## Editorial focus
+
+The blog answers practical questions about catalogue digital, menu QR, WhatsApp selling, POS ordering, stock management, CRM, websites, WhatsApp AI agents, custom business applications and SME digitalisation in Côte d’Ivoire.
