@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Publish due articles and refresh SEO files
-        run: python scripts/publish_blog.py
+        run: |
+          python scripts/publish_blog.py
+          python scripts/fix_starter_price.py
       - name: Commit published content
         run: |
           if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
