@@ -35,7 +35,7 @@ def write_blog_index(pub):
     (BLOG/'index.html').write_text(content,encoding='utf-8')
 
 def write_sitemap(pub,today):
-    urls=[('/',today.isoformat(),'1.0'),('/blog/',today.isoformat(),'0.9')]+[(f'/blog/{a["slug"]}/',a['publish_date'],'0.8') for a in pub]
+    urls=[('/',today.isoformat(),'1.0'),('/blog/',today.isoformat(),'0.9'),('/plan-du-site.html',today.isoformat(),'0.5')]+[(f'/blog/{a["slug"]}/',a['publish_date'],'0.8') for a in pub]
     body=''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{d}</lastmod><changefreq>{"weekly" if p=="/" else "monthly"}</changefreq><priority>{pr}</priority></url>' for p,d,pr in urls)
     (ROOT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+body+'</urlset>',encoding='utf-8')
 
@@ -54,7 +54,7 @@ def patch_home():
     if 'id="blog-guides"' not in s:
         block='<section id="blog-guides"><div class="container"><div class="section-head"><div><span class="eyebrow">Conseils & ressources</span><h2 style="margin-top:18px">Les questions que se posent les entreprises avant de se digitaliser.</h2></div><p>Guides pratiques sur les catalogues QR, commandes WhatsApp, POS, CRM, sites web, agents IA WhatsApp et applications sur mesure en Côte d’Ivoire.</p></div><div class="features"><a class="feature" href="/blog/prix-catalogue-digital-menu-qr-cote-divoire/"><div class="icon">?</div><h3>Combien coûte un catalogue digital ?</h3><p>Tarifs, différences entre les packs et critères pour choisir.</p></a><a class="feature" href="/blog/"><div class="icon">↗</div><h3>Voir tous nos guides</h3><p>Des réponses ciblées pour restaurants, commerces, hôtels, services et PME.</p></a></div></div></section>'
         s=s.replace('<section class="cta" id="contact">',block+'\n<section class="cta" id="contact">',1)
-    s=s.replace('<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire.</div>','<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire. · <a href="/blog/">Blog</a> · <a href="/sitemap.xml">Sitemap</a></div>',1)
+    s=s.replace('<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire.</div>','<div>© 2026 Digital ADN — Abidjan, Côte d\'Ivoire. · <a href="/blog/">Blog</a> · <a href="/plan-du-site.html">Plan du site</a></div>',1)
     p.write_text(s,encoding='utf-8')
 
 def main():
